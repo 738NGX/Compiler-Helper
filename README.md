@@ -1,18 +1,9 @@
-# Welcome to React Router!
+# Compiler Helper
 
-A modern, production-ready template for building full-stack React applications using React Router.
+## About
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
-
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- 本项目主要为编译原理期末复习自用,包含了一些笔记整理和工具的实现.
+- 本项目使用Vite+React19+AntDesign进行搭建,也作为前端学习自用项目.
 
 ## Getting Started
 
@@ -49,10 +40,10 @@ npm run build
 To build and run using Docker:
 
 ```bash
-docker build -t my-app .
+docker build -t compiler-helper .
 
 # Run the container
-docker run -p 3000:3000 my-app
+docker run -p 3000:3000 compiler-helper
 ```
 
 The containerized application can be deployed to any platform that supports Docker, including:
@@ -78,10 +69,3 @@ Make sure to deploy the output of `npm run build`
 │   └── server/    # Server-side code
 ```
 
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.

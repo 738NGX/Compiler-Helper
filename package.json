@@ -9,8 +9,10 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
+    "antd": "^5.25.1",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
