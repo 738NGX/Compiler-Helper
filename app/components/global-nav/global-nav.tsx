@@ -7,7 +7,6 @@ import {
   FontSizeOutlined,
   HomeOutlined,
 } from '@ant-design/icons';
-import { usePrefersColorScheme } from '~/hooks/usePrefersColorScheme';
 import { NavLink } from 'react-router';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -23,7 +22,7 @@ const items: MenuItem[] = [
     icon: <FontSizeOutlined />,
     label: '第二章 词法分析',
     children: [
-      { key: '21', label: (<NavLink to="/regex-converter">正则式转换器</NavLink>) },
+      { key: '21', label: (<NavLink to="/regex-converter">正规式转换器</NavLink>) },
     ],
   },
   {
@@ -57,7 +56,7 @@ const getLevelKeys = (items1: LevelKeysProps[]) => {
 const levelKeys = getLevelKeys(items as LevelKeysProps[]);
 
 export default function GlobalNav() {
-  const [openKeys, setOpenKeys] = useState(['0', '0']);
+  const [openKeys, setOpenKeys] = useState(['1']);
   const onOpenChange: MenuProps['onOpenChange'] = keys => {
     const latest = keys.find(k => openKeys.indexOf(k) === -1);
     if (latest) {
@@ -73,7 +72,6 @@ export default function GlobalNav() {
       setOpenKeys(keys);
     }
   };
-  const scheme = usePrefersColorScheme().toString();
 
   return (
     <Menu
@@ -82,7 +80,7 @@ export default function GlobalNav() {
       items={items}
       openKeys={openKeys}
       onOpenChange={onOpenChange}
-      defaultSelectedKeys={['0']}
+      defaultSelectedKeys={['1']}
     />
   );
 }
