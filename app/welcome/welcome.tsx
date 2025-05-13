@@ -53,7 +53,7 @@ export function Welcome() {
 
 const resources = [
   {
-    href: "",
+    href: "https://github.com/738NGX/Compiler-Helper",
     text: "Github仓库",
     icon: <GithubOutlined />,
   },

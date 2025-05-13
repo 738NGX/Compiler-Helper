@@ -40,6 +40,7 @@ export default function RegexConverter() {
     setDfa2minDfaTransTable({ dataSource: dfaDataSource, columns: dfaColumns });
     const minDfa = convertDFAToMinDFA(dfa);
     setMinDfaResult(minDfa);
+    console.log(minDfa);
   };
 
   return (

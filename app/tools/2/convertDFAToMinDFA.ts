@@ -8,67 +8,63 @@ interface Dfa2MinDfaState {
 }
 
 function getMinDfaResult(dfa: FiniteAutomaton) {
-  const dfaResult: Dfa2MinDfaState[] = [];
   const symbols = Object.keys(dfa.transitions[Object.keys(dfa.transitions)[0]]);
-  const startState = dfa.startState;
   const acceptStates = dfa.acceptStates;
+  // 初始化状态划分：终态和非终态
+  const allStates = Object.keys(dfa.transitions);
+  let partitions: Set<string>[] = [
+    new Set(acceptStates),
+    new Set(allStates.filter(s => !acceptStates.includes(s)))
+  ];
 
-  // 初始化 DFA 状态
-  const initialDfaState: Dfa2MinDfaState = {
-    dfaState: [startState],
-    minDfaState: startState,
-    isAccept: acceptStates.includes(startState),
-    transitions: {}
-  };
-  dfaResult.push(initialDfaState);
-
-  // 用于存储已处理的状态组合
-  const processedStates = new Set<string>();
-  processedStates.add(initialDfaState.dfaState.join(','));
-
-  while (dfaResult.length > 0) {
-    const current = dfaResult.shift()!;
-    const currentStates = current.dfaState;
-
-    symbols.forEach(sym => {
-      const nextStatesSet = new Set<string>();
-
-      currentStates.forEach(state => {
-        const nextStates = dfa.transitions[state][sym] || [];
-        nextStates.forEach(nextState => nextStatesSet.add(nextState));
-      });
-
-      const nextStates = Array.from(nextStatesSet).sort();
-      if (nextStates.length === 0) return;
-
-      // 将状态组合转换为字符串以便于存储
-      const nextStatesKey = nextStates.join(',');
-      if (processedStates.has(nextStatesKey)) return;
-
-      processedStates.add(nextStatesKey);
-
-      let nextDfa: Dfa2MinDfaState | undefined;
-      for (const item of dfaResult) {
-        if (item.dfaState.join(',') === nextStatesKey) {
-          nextDfa = item;
-          break;
-        }
+  // 不断细化划分
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i < partitions.length; i++) {
+      const group = partitions[i];
+      const splitter: Record<string, Set<string>> = {};
+      // 用转移 signature 做分割
+      for (const state of group) {
+        const sig = symbols
+          .map(sym => {
+            const tgt = dfa.transitions[state][sym][0];
+            // 找到目标状态所属的分区编号
+            return partitions.findIndex(p => p.has(tgt));
+          })
+          .join(',');
+        splitter[sig] = splitter[sig] || new Set();
+        splitter[sig].add(state);
       }
-
-      if (!nextDfa) {
-        nextDfa = {
-          dfaState: nextStates,
-          minDfaState: nextStates.join(','),
-          isAccept: acceptStates.some(state => nextStates.includes(state)),
-          transitions: {}
-        };
-        dfaResult.push(nextDfa);
+      const pieces = Object.values(splitter);
+      if (pieces.length > 1) {
+        // 替换当前分区
+        partitions.splice(i, 1, ...pieces);
+        changed = true;
+        break;
       }
-
-      current.transitions[sym] = nextDfa.minDfaState;
-    });
+    }
   }
-  console.log('dfaResult', dfaResult);
+
+  // 构造最小化结果
+  const dfaResult: Dfa2MinDfaState[] = partitions.map(group => {
+    const states = Array.from(group);
+    const repr = Array.from(group).join(',');
+    const isAcceptGroup = states.some(s => acceptStates.includes(s));
+    const trans: Record<string, string> = {};
+    symbols.forEach(sym => {
+      const tgt = dfa.transitions[states[0]][sym][0];
+      const tgtGroup = partitions.find(p => p.has(tgt));
+      if (tgtGroup) trans[sym] = Array.from(tgtGroup).join(',');
+    });
+    return {
+      dfaState: states,
+      minDfaState: repr,
+      isAccept: isAcceptGroup,
+      transitions: trans
+    };
+  });
+
   return { dfaResult, symbols };
 }
 
@@ -78,7 +74,9 @@ export function getDfa2MinDfaTransTable(dfa: FiniteAutomaton) {
     const { dfaState, minDfaState, isAccept, transitions } = item;
     const row: any = {
       key: minDfaState,
-      isAccept: isAccept ? 'accept' : 'not accept',
+      dfaState: dfaState.join(','),
+      minDfaState: minDfaState,
+      isAccept: isAccept ? 'accept' : '',
       ...transitions,
     };
     symbols.forEach(sym => {
@@ -89,7 +87,13 @@ export function getDfa2MinDfaTransTable(dfa: FiniteAutomaton) {
   );
   const columns = [
     {
-      title: 'STATE',
+      title: 'DFA STATE',
+      dataIndex: 'dfaState',
+      key: 'dfaState',
+      render: (val: string) => val,
+    },
+    {
+      title: 'Min-DFA STATE',
       dataIndex: 'minDfaState',
       key: 'minDfaState',
       render: (val: string) => val,
@@ -112,18 +116,19 @@ export function getDfa2MinDfaTransTable(dfa: FiniteAutomaton) {
 
 export function convertDFAToMinDFA(dfa: FiniteAutomaton): FiniteAutomaton {
   const { dfaResult, symbols } = getMinDfaResult(dfa);
-  const startState = dfa.startState;
-  const acceptStates = dfa.acceptStates;
-
-  // 创建最小 DFA 的转换表
-  const minDfaTransitions: { [key: string]: { [key: string]: string[]; }; } = {};
+  const startState = dfaResult.find(item => item.dfaState.includes(dfa.startState))?.minDfaState || '';
+  const acceptStates = dfaResult
+    .filter(item => item.isAccept)
+    .map(item => item.minDfaState);
+  const minDfaTransitions: { [from: string]: { [symbol: string]: string[] } } = {};
   dfaResult.forEach(item => {
-    const minDfaState = item.minDfaState;
+    const { minDfaState, transitions } = item;
     minDfaTransitions[minDfaState] = {};
     symbols.forEach(sym => {
-      const nextState = item.transitions[sym];
-      if (nextState) {
-        minDfaTransitions[minDfaState][sym] = [nextState];
+      const tgtState = transitions[sym];
+      if (tgtState) {
+        // directly assign the minimal-state ID
+        minDfaTransitions[minDfaState][sym] = [tgtState];
       }
     });
   });
