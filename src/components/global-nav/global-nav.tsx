@@ -75,7 +75,9 @@ export default function GlobalNav() {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    const keyPath = findKeyPath(items, location.pathname);
+    // 去掉 /Compiler-Helper 前缀
+    const cleanPath = location.pathname.replace(/^\/Compiler-Helper/, '') || '/';
+    const keyPath = findKeyPath(items, cleanPath);
     if (keyPath.length) {
       setSelectedKeys([keyPath[keyPath.length - 1]]);
       setOpenKeys(keyPath.slice(0, -1));
@@ -84,6 +86,7 @@ export default function GlobalNav() {
       setOpenKeys([]);
     }
   }, [location.pathname]);
+
 
   const onOpenChange: MenuProps['onOpenChange'] = keys => {
     setOpenKeys(keys as string[]);
