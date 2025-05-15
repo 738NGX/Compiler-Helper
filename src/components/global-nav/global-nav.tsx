@@ -19,7 +19,7 @@ const items: MenuItemWithPath[] = [
   {
     key: '0',
     icon: <HomeOutlined />,
-    label: <NavLink to="/">主页</NavLink>,
+    label: <NavLink to="/Compiler-Helper/">主页</NavLink>,
     path: '/',
   },
   {
@@ -27,8 +27,8 @@ const items: MenuItemWithPath[] = [
     icon: <BookOutlined />,
     label: '第一章 引论',
     children: [
-      { key: '11', label: <NavLink to="/brief/1">主要知识点</NavLink>, path: '/brief/1' },
-      { key: '12', label: <NavLink to="/exercise/1">习题</NavLink>, path: '/exercise/1' },
+      { key: '11', label: <NavLink to="/Compiler-Helper/brief/1">主要知识点</NavLink>, path: '/brief/1' },
+      { key: '12', label: <NavLink to="/Compiler-Helper/exercise/1">习题</NavLink>, path: '/exercise/1' },
     ],
   },
   {
@@ -36,8 +36,8 @@ const items: MenuItemWithPath[] = [
     icon: <FontSizeOutlined />,
     label: '第二章 词法分析',
     children: [
-      { key: '21', label: <NavLink to="/brief/2">主要知识点</NavLink>, path: '/brief/2' },
-      { key: '22', label: <NavLink to="/regex-converter">正规式转换器</NavLink>, path: '/regex-converter' },
+      { key: '21', label: <NavLink to="/Compiler-Helper/brief/2">主要知识点</NavLink>, path: '/brief/2' },
+      { key: '22', label: <NavLink to="/Compiler-Helper/regex-converter">正规式转换器</NavLink>, path: '/regex-converter' },
     ],
   },
   {
@@ -45,8 +45,8 @@ const items: MenuItemWithPath[] = [
     icon: <AlignLeftOutlined />,
     label: '第三章 语法分析',
     children: [
-      { key: '31', label: <NavLink to="/brief/3">主要知识点</NavLink>, path: '/brief/3' },
-      { key: '32', label: <NavLink to="/leftmost-derivation">最左推导与分析树</NavLink>, path: '/leftmost-derivation' },
+      { key: '31', label: <NavLink to="/Compiler-Helper/brief/3">主要知识点</NavLink>, path: '/brief/3' },
+      { key: '32', label: <NavLink to="/Compiler-Helper/leftmost-derivation">最左推导与分析树</NavLink>, path: '/leftmost-derivation' },
     ],
   },
 ];
