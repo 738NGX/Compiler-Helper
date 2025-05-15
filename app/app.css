@@ -7,7 +7,7 @@
 
 html,
 body {
-  @apply bg-white dark:bg-[#101010];
+  @apply bg-white dark:bg-[#0d1117];
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
@@ -20,9 +20,44 @@ body {
 }
 
 .sidebar {
-  @apply flex-none w-64 bg-white dark:bg-[#141414] border-r border-gray-200 dark:border-gray-700 overflow-auto;
+  @apply bg-white w-64 dark:bg-[#141414] border-r border-gray-200 dark:border-gray-700;
 }
 
 .content {
-  @apply flex-1 p-4 bg-gray-50 dark:bg-[#101010] text-gray-900 dark:text-gray-100 overflow-auto;
+  @apply bg-gray-50 dark:bg-[#0d1117] text-gray-900 dark:text-gray-100;
+}
+
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.67em 0;
+}
+h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.83em 0;
+}
+h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  margin: 1em 0;
+}
+h4 {
+  font-size: 1em;
+  font-weight: bold;
+  margin: 1.33em 0;
+}
+
+p {
+  font-size: 1em;
+  margin: 1em 0;
+}
+
+ul {
+  list-style-type:disc;
+  margin-left: 1em;
+}
+
+ol {
+  list-style-type:decimal;
 }

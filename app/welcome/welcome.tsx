@@ -27,23 +27,21 @@ export function Welcome() {
             <h3><b>关于本项目</b></h3>
             <p>1. 本项目主要为编译原理期末复习自用,包含了一些笔记整理和工具的实现.</p>
             <p>2. 本项目使用Vite+React19+AntDesign进行搭建,也作为前端学习自用项目.</p>
-            <ul>
-              {resources.map(({ href, text, icon }) => (
-                <li key={href}>
-                  <div className="flex items-center gap-3">
-                    {icon}
-                    <a
-                      className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                      href={href}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <b>{text}</b>
-                    </a>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {resources.map(({ href, text, icon }) => (
+              <p key={href}>
+                <div className="flex items-center gap-3">
+                  {icon}
+                  <a
+                    className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <b>{text}</b>
+                  </a>
+                </div>
+              </p>
+            ))}
           </nav>
         </div>
       </div>

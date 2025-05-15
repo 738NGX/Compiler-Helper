@@ -60,7 +60,7 @@ mermaid.initialize({ startOnLoad: false });
 
 export default function FiniteAutomatonComponent({
   fa,
-  title = '有限自动机状态图',
+  title,
   style
 }: FiniteAutomatonComponentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -118,13 +118,21 @@ export default function FiniteAutomatonComponent({
 
   return (
     <div style={{ ...style }}>
-      <Card title={title} style={{ minWidth: 300 }}>
-        <div
-          ref={containerRef}
-          className="fa-diagram"
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
-      </Card>
+      {
+        title
+          ? <Card className="min-w-[300px]" title={title}>
+            <div
+              ref={containerRef}
+              className="fa-diagram"
+              dangerouslySetInnerHTML={{ __html: svg }}
+            />
+          </Card>
+          : <div
+            ref={containerRef}
+            className="fa-diagram"
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+      }
     </div>
   );
 }

@@ -1,28 +1,43 @@
-// app/components/GlobalNav.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
+import { NavLink, useLocation } from 'react-router';
 import {
-  AlignLeftOutlined,
-  FontSizeOutlined,
   HomeOutlined,
+  BookOutlined,
+  FontSizeOutlined,
+  AlignLeftOutlined,
 } from '@ant-design/icons';
-import { NavLink } from 'react-router';
 
-type MenuItem = Required<MenuProps>['items'][number];
+type BaseMenuItem = NonNullable<MenuProps['items']>[number];
+type MenuItemWithPath = BaseMenuItem & {
+  path?: string;
+  children?: MenuItemWithPath[];
+};
 
-const items: MenuItem[] = [
+const items: MenuItemWithPath[] = [
+  {
+    key: '0',
+    icon: <HomeOutlined />,
+    label: <NavLink to="/">主页</NavLink>,
+    path: '/',
+  },
   {
     key: '1',
-    icon: <HomeOutlined />,
-    label: (<NavLink to="/">第一章 引论</NavLink>),
+    icon: <BookOutlined />,
+    label: '第一章 引论',
+    children: [
+      { key: '11', label: <NavLink to="/brief/1">主要知识点</NavLink>, path: '/brief/1' },
+      { key: '12', label: <NavLink to="/exercise/1">习题</NavLink>, path: '/exercise/1' },
+    ],
   },
   {
     key: '2',
     icon: <FontSizeOutlined />,
     label: '第二章 词法分析',
     children: [
-      { key: '21', label: (<NavLink to="/regex-converter">正规式转换器</NavLink>) },
+      { key: '21', label: <NavLink to="/brief/2">主要知识点</NavLink>, path: '/brief/2' },
+      { key: '22', label: <NavLink to="/regex-converter">正规式转换器</NavLink>, path: '/regex-converter' },
     ],
   },
   {
@@ -30,47 +45,48 @@ const items: MenuItem[] = [
     icon: <AlignLeftOutlined />,
     label: '第三章 语法分析',
     children: [
-      { key: '31', label: 'Option 1' },
-      { key: '32', label: 'Option 2' },
-      { key: '33', label: 'Submenu' },
-      { key: '34', label: 'Submenu 2' },
+      { key: '31', label: <NavLink to="/brief/3">主要知识点</NavLink>, path: '/brief/3' },
+      { key: '32', label: <NavLink to="/leftmost-derivation">最左推导与分析树</NavLink>, path: '/leftmost-derivation' },
     ],
   },
 ];
 
-interface LevelKeysProps {
-  key?: string;
-  children?: LevelKeysProps[];
-}
-const getLevelKeys = (items1: LevelKeysProps[]) => {
-  const key: Record<string, number> = {};
-  const func = (items2: LevelKeysProps[], level = 1) => {
-    items2.forEach(item => {
-      if (item.key) key[item.key] = level;
-      if (item.children) func(item.children, level + 1);
-    });
-  };
-  func(items1);
-  return key;
+const findKeyPath = (
+  menuItems: MenuItemWithPath[],
+  pathname: string,
+  parentKeys: string[] = []
+): string[] => {
+  for (const item of menuItems) {
+    const newKeys = [...parentKeys, String(item.key)];
+    if (item.path === pathname) {
+      return newKeys;
+    }
+    if (item.children) {
+      const res = findKeyPath(item.children, pathname, newKeys);
+      if (res.length) return res;
+    }
+  }
+  return [];
 };
-const levelKeys = getLevelKeys(items as LevelKeysProps[]);
 
 export default function GlobalNav() {
-  const [openKeys, setOpenKeys] = useState(['1']);
-  const onOpenChange: MenuProps['onOpenChange'] = keys => {
-    const latest = keys.find(k => openKeys.indexOf(k) === -1);
-    if (latest) {
-      const repeatIndex = keys
-        .filter(k => k !== latest)
-        .findIndex(k => levelKeys[k] === levelKeys[latest]);
-      setOpenKeys(
-        keys
-          .filter((_, i) => i !== repeatIndex)
-          .filter(k => levelKeys[k] <= levelKeys[latest])
-      );
+  const location = useLocation();
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    const keyPath = findKeyPath(items, location.pathname);
+    if (keyPath.length) {
+      setSelectedKeys([keyPath[keyPath.length - 1]]);
+      setOpenKeys(keyPath.slice(0, -1));
     } else {
-      setOpenKeys(keys);
+      setSelectedKeys(['0']);
+      setOpenKeys([]);
     }
+  }, [location.pathname]);
+
+  const onOpenChange: MenuProps['onOpenChange'] = keys => {
+    setOpenKeys(keys as string[]);
   };
 
   return (
@@ -79,8 +95,8 @@ export default function GlobalNav() {
       style={{ width: 256 }}
       items={items}
       openKeys={openKeys}
+      selectedKeys={selectedKeys}
       onOpenChange={onOpenChange}
-      defaultSelectedKeys={['1']}
     />
   );
 }

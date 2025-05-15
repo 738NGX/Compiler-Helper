@@ -13,10 +13,9 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
     return `s${num < 10 ? '0' + num : num}`;
   };
 
-  // 判断是否为操作数（包括 ε）
   const isOperand = (token: string) => /[a-zA-Z0-9ε]/.test(token);
 
-  // 插入显式连接符
+  // 插入显式连接符：不在 '*'、'+'、'?' 后面插入 '·'
   const insertConcat = (re: string) => {
     let output = '';
     for (let i = 0; i < re.length; i++) {
@@ -29,7 +28,9 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
         c1 !== '|' &&
         c2 !== ')' &&
         c2 !== '|' &&
-        c2 !== '*'
+        c2 !== '*' &&
+        c2 !== '+' &&
+        c2 !== '?'
       ) {
         output += '.';
       }
@@ -37,11 +38,18 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
     return output;
   };
 
-  // 中缀转后缀（Shunting-yard）
+  // 中缀转后缀：加上 '+' 和 '?'，优先级与 '*' 同级
   const toPostfix = (infix: string) => {
-    const precedence: Record<string, number> = { '|': 1, '.': 2, '*': 3 };
+    const precedence: Record<string, number> = {
+      '|': 1,
+      '.': 2,
+      '*': 3,
+      '+': 3,
+      '?': 3
+    };
     const output: string[] = [];
     const stack: string[] = [];
+
     for (const token of infix) {
       if (isOperand(token)) {
         output.push(token);
@@ -51,7 +59,7 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
         while (stack.length && stack[stack.length - 1] !== '(') {
           output.push(stack.pop()!);
         }
-        stack.pop(); // 弹出 '('
+        stack.pop();
       } else {
         while (
           stack.length &&
@@ -63,9 +71,7 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
         stack.push(token);
       }
     }
-    while (stack.length) {
-      output.push(stack.pop()!);
-    }
+    while (stack.length) output.push(stack.pop()!);
     return output;
   };
 
@@ -74,15 +80,11 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
     accept: string;
     transitions: { [from: string]: { [symbol: string]: string[] } };
   }
-
   const makeFrag = (start: string, accept: string): Fragment => ({
-    start,
-    accept,
-    transitions: {}
+    start, accept, transitions: {}
   });
-
   const addTransition = (
-    trans: { [from: string]: { [symbol: string]: string[] } },
+    trans: Fragment['transitions'],
     from: string,
     symbol: string,
     to: string
@@ -92,7 +94,6 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
     trans[from][symbol].push(to);
   };
 
-  // 合并并消除冗余 ε 转移的连接
   const mergeConcat = (f1: Fragment, f2: Fragment): Fragment => {
     const merged: Fragment = {
       start: f1.start,
@@ -100,13 +101,11 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
       transitions: { ...f1.transitions }
     };
     Object.entries(f2.transitions).forEach(([oldFrom, map]) => {
-      // 如果是 f2.start，则重命名为 f1.accept
       const from = oldFrom === f2.start ? f1.accept : oldFrom;
       if (!merged.transitions[from]) merged.transitions[from] = {};
       Object.entries(map).forEach(([sym, tos]) => {
         if (!merged.transitions[from][sym]) merged.transitions[from][sym] = [];
         tos.forEach(to => {
-          // 同样如果目标是 f2.start，也重命名
           merged.transitions[from][sym].push(to === f2.start ? f1.accept : to);
         });
       });
@@ -114,35 +113,30 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
     return merged;
   };
 
+  // 正式开始：生成后缀表达式并构造 NFA 片段
   const postfix = toPostfix(insertConcat(regex));
   const stack: Fragment[] = [];
 
   postfix.forEach(token => {
     if (isOperand(token)) {
       // 普通字符或 ε
-      const start = newState();
-      const accept = newState();
+      const start = newState(), accept = newState();
       const frag = makeFrag(start, accept);
-      const sym = token === EPSILON ? EPSILON : token;
-      addTransition(frag.transitions, start, sym, accept);
+      addTransition(frag.transitions, start, token === EPSILON ? EPSILON : token, accept);
       stack.push(frag);
+
     } else if (token === '.') {
-      const f2 = stack.pop()!;
-      const f1 = stack.pop()!;
+      const f2 = stack.pop()!, f1 = stack.pop()!;
       stack.push(mergeConcat(f1, f2));
+
     } else if (token === '|') {
-      const f2 = stack.pop()!;
-      const f1 = stack.pop()!;
-      const start = newState();
-      const accept = newState();
+      const f2 = stack.pop()!, f1 = stack.pop()!;
+      const start = newState(), accept = newState();
       const frag = makeFrag(start, accept);
-      // ε → 子 NFA 起点
       addTransition(frag.transitions, start, EPSILON, f1.start);
       addTransition(frag.transitions, start, EPSILON, f2.start);
-      // 子 NFA 接受态 → ε → 总接受态
       addTransition(frag.transitions, f1.accept, EPSILON, accept);
       addTransition(frag.transitions, f2.accept, EPSILON, accept);
-      // 合并子 NFA 转移
       [f1, f2].forEach(sub =>
         Object.entries(sub.transitions).forEach(([from, map]) => {
           if (!frag.transitions[from]) frag.transitions[from] = {};
@@ -153,17 +147,50 @@ export function convertRegexToNFA(regex: string): FiniteAutomaton {
         })
       );
       stack.push(frag);
+
     } else if (token === '*') {
       const f1 = stack.pop()!;
-      const start = newState();
-      const accept = newState();
+      const start = newState(), accept = newState();
       const frag = makeFrag(start, accept);
-      // 构造闭包
+      // 0 次或多次
       addTransition(frag.transitions, start, EPSILON, f1.start);
       addTransition(frag.transitions, start, EPSILON, accept);
       addTransition(frag.transitions, f1.accept, EPSILON, f1.start);
       addTransition(frag.transitions, f1.accept, EPSILON, accept);
-      // 合并子 NFA 转移
+      Object.entries(f1.transitions).forEach(([from, map]) => {
+        if (!frag.transitions[from]) frag.transitions[from] = {};
+        Object.entries(map).forEach(([sym, tos]) => {
+          if (!frag.transitions[from][sym]) frag.transitions[from][sym] = [];
+          frag.transitions[from][sym].push(...tos);
+        });
+      });
+      stack.push(frag);
+
+    } else if (token === '+') {
+      const f1 = stack.pop()!;
+      const start = newState(), accept = newState();
+      const frag = makeFrag(start, accept);
+      // 至少一次：类似 *，但去掉初始直接跳到 accept 的 ε
+      addTransition(frag.transitions, start, EPSILON, f1.start);
+      addTransition(frag.transitions, f1.accept, EPSILON, f1.start);
+      addTransition(frag.transitions, f1.accept, EPSILON, accept);
+      Object.entries(f1.transitions).forEach(([from, map]) => {
+        if (!frag.transitions[from]) frag.transitions[from] = {};
+        Object.entries(map).forEach(([sym, tos]) => {
+          if (!frag.transitions[from][sym]) frag.transitions[from][sym] = [];
+          frag.transitions[from][sym].push(...tos);
+        });
+      });
+      stack.push(frag);
+
+    } else if (token === '?') {
+      const f1 = stack.pop()!;
+      const start = newState(), accept = newState();
+      const frag = makeFrag(start, accept);
+      // 零次或一次
+      addTransition(frag.transitions, start, EPSILON, f1.start);
+      addTransition(frag.transitions, start, EPSILON, accept);
+      addTransition(frag.transitions, f1.accept, EPSILON, accept);
       Object.entries(f1.transitions).forEach(([from, map]) => {
         if (!frag.transitions[from]) frag.transitions[from] = {};
         Object.entries(map).forEach(([sym, tos]) => {

@@ -99,7 +99,7 @@ export function getDfa2MinDfaTransTable(dfa: FiniteAutomaton) {
       render: (val: string) => val,
     },
     {
-      title: 'isAccept',
+      title: 'TYPE',
       dataIndex: 'isAccept',
       key: 'isAccept',
       render: (val: string) => val,
