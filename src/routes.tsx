@@ -8,7 +8,7 @@ import LeftMostDerivation from "./routes/leftmost-derivation/leftmost-derivation
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/Compiler-Helper/",
     element: <App />,
     children: [
       { index: true, element: <Welcome /> },
