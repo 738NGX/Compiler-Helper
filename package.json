@@ -1,38 +1,40 @@
 {
   "name": "compiler-helper",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "homepage": "https://738ngx.github.io/Compiler-Helper/",
   "scripts": {
-    "build": "react-router build",
-    "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@react-router/node": "^7.5.3",
-    "@react-router/serve": "^7.5.3",
+    "@tailwindcss/vite": "^4.1.7",
     "antd": "^5.25.1",
     "github-markdown-css": "^5.8.1",
-    "isbot": "^5.1.27",
     "mermaid": "^11.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
-    "react-router": "^7.5.3",
+    "react-router": "^7.6.0",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
-    "remark-math": "^6.0.0"
+    "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
-    "@react-router/dev": "^7.5.3",
-    "@tailwindcss/vite": "^4.1.4",
-    "@types/node": "^20",
+    "@eslint/js": "^9.25.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.3",
-    "vite-tsconfig-paths": "^5.1.4"
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5"
   }
 }
