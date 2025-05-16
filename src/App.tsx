@@ -5,7 +5,7 @@ import GlobalNav from './components/global-nav/global-nav'
 import { useEffect, useState } from 'react';
 import { usePrefersColorScheme } from './hooks/usePrefersColorScheme';
 import { createContext } from 'react';
-const { Content, Footer } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 const siderStyle: React.CSSProperties = {
   overflow: 'auto',
@@ -14,8 +14,6 @@ const siderStyle: React.CSSProperties = {
   insetInlineStart: 0,
   top: 0,
   bottom: 0,
-  scrollbarWidth: 'thin',
-  scrollbarGutter: 'stable',
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -28,7 +26,8 @@ export const ThemeContext = createContext<{
 });
 
 function App() {
-  const [dark, setDark] = useState(usePrefersColorScheme()=== 'dark');
+  const [dark, setDark] = useState(usePrefersColorScheme() === 'dark');
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -38,10 +37,10 @@ function App() {
     <ThemeContext.Provider value={{ dark, setDark }}>
       <ConfigProvider theme={{ algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm }}>
         <Layout hasSider>
-          <div className="sidebar" style={siderStyle}>
+          <Sider style={siderStyle} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
             <div className="demo-logo-vertical" />
             <GlobalNav />
-          </div>
+          </Sider>
           <Layout>
             <Content className="content" style={{ padding: '1rem', overflow: 'initial' }}>
               <Outlet />

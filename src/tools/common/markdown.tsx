@@ -38,14 +38,14 @@ export default function MarkDownComponent({ content }: MarkDownComponentProps) {
 
   return (
     <Row>
-      <Col span={16}>
+      <Col xs={24} sm={24} md={20} lg={16}>
         <div className="markdown-body" style={{ margin: '0 20px' }}>
           <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
             {content}
           </ReactMarkdown>
         </div>
       </Col>
-      <Col span={8}>
+      <Col xs={0} sm={0} md={4} lg={8}>
         <Anchor items={items} />
       </Col>
     </Row>

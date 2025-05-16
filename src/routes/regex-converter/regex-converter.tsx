@@ -1,4 +1,4 @@
-import { Card, Input, Flex, Table, Collapse } from 'antd';
+import { Card, Input, Table, Collapse, Col, Row } from 'antd';
 import type { GetProps } from 'antd';
 import { useState } from 'react';
 import FiniteAutomatonComponent, { FiniteAutomaton } from '../../components/finite-automaton/finite-automaton';
@@ -44,52 +44,77 @@ export default function RegexConverter() {
 
   return (
     <div>
-      <Flex justify="space-around">
-        <Card className="min-w-[300px]" title="正规式转换器" >
-          <p>你可以输入一个正规式,程序首先将使用汤普森构造法将其构造为NFA,随后使用子集构造法将其构造为DFA,最后化简为Min-DFA.</p>
-          <p>注意:输入的正规式必须符合语法要求,否则转换会失败.</p>
-          <p>使用汤普森构造法时,可以先写出一些简单的NFA,然后对他们进行组合,你可以在右边的语法提示中找到一些例子.</p>
-        </Card>
-        <Card className="min-w-[400px]" title="语法提示" style={{ marginLeft: 16, marginRight: 16 }} >
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: 'r = (s)', children: <FiniteAutomatonComponent fa={convertRegexToNFA("(s)")} /> }]}
-          />
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: 'r = st', children: <FiniteAutomatonComponent fa={convertRegexToNFA("st")} /> }]}
-          />
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: 'r = s|t', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s|t")} /> }]}
-          />
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: 'r = s*', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s*")} /> }]}
-          />
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: 'r = s+', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s+")} /> }]}
-          />
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: 'r = s?', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s?")} /> }]}
-          />
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: 'r = ε', children: <FiniteAutomatonComponent fa={convertRegexToNFA("ε")} /> }]}
-          />
-        </Card>
-        <Card className="min-w-[300px]" title="输入示例" >
-          <ul className="d">
-            <li>(a|b)*</li>
-            <li>(a*|b*)*</li>
-            <li>((ε|a)b*)*</li>
-            <li>(a|b)*abb(a|b)*</li>
-          </ul>
-          <p>第一次作业: 将正则表达式<b>(a|b)*a(a|b|ε)*</b>转化为一个NFA,然后利用子集构造法将NFA转化为一个DFA.</p>
-        </Card>
-      </Flex>
+      <Row
+        gutter={[16, 16]}
+        justify="space-around"
+        style={{ marginBottom: 16, alignItems: 'stretch' }}
+      >
+        <Col xs={24} sm={24} md={7} lg={7} style={{ display: 'flex' }}>
+          <Card
+            title="正规式转换器"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+          >
+            <div>
+              <p>你可以输入一个正规式,程序首先将使用汤普森构造法将其构造为NFA,随后使用子集构造法将其构造为DFA,最后化简为Min-DFA.</p>
+              <p>注意:输入的正规式必须符合语法要求,否则转换会失败.</p>
+              <p>使用汤普森构造法时,可以先写出一些简单的NFA,然后对他们进行组合,你可以在右边的语法提示中找到一些例子.</p>
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={24} md={10} lg={10} style={{ display: 'flex' }}>
+          <Card
+            title="语法提示"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+          >
+            <div>
+              <Collapse
+                size="small" style={{ marginTop: 8 }}
+                items={[{ key: '1', label: 'r = (s)', children: <FiniteAutomatonComponent fa={convertRegexToNFA("(s)")} /> }]}
+              />
+              <Collapse
+                size="small" style={{ marginTop: 8 }}
+                items={[{ key: '1', label: 'r = st', children: <FiniteAutomatonComponent fa={convertRegexToNFA("st")} /> }]}
+              />
+              <Collapse
+                size="small" style={{ marginTop: 8 }}
+                items={[{ key: '1', label: 'r = s|t', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s|t")} /> }]}
+              />
+              <Collapse
+                size="small" style={{ marginTop: 8 }}
+                items={[{ key: '1', label: 'r = s*', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s*")} /> }]}
+              />
+              <Collapse
+                size="small" style={{ marginTop: 8 }}
+                items={[{ key: '1', label: 'r = s+', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s+")} /> }]}
+              />
+              <Collapse
+                size="small" style={{ marginTop: 8 }}
+                items={[{ key: '1', label: 'r = s?', children: <FiniteAutomatonComponent fa={convertRegexToNFA("s?")} /> }]}
+              />
+              <Collapse
+                size="small" style={{ marginTop: 8 }}
+                items={[{ key: '1', label: 'r = ε', children: <FiniteAutomatonComponent fa={convertRegexToNFA("ε")} /> }]}
+              />
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={24} md={7} lg={7} style={{ display: 'flex' }}>
+          <Card
+            title="输入示例"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+          >
+            <ul className="d">
+              <li>(a|b)*</li>
+              <li>(a*|b*)*</li>
+              <li>((ε|a)b*)*</li>
+              <li>(a|b)*abb(a|b)*</li>
+            </ul>
+            <p>第一次作业: 将正则表达式<b>(a|b)*a(a|b|ε)*</b>转化为一个NFA,然后利用子集构造法将NFA转化为一个DFA.</p>
+          </Card>
+        </Col>
+      </Row>
       <Search
         placeholder="请输入需要转换的正规式"
         allowClear

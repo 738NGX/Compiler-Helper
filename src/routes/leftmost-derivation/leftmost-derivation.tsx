@@ -1,4 +1,4 @@
-import { Card, Collapse, Flex, type GetProps } from "antd";
+import { Card, Col, Collapse, Row, type GetProps } from "antd";
 import { useState } from "react";
 import GenericParserViewer, { type Grammar } from "../../components/generic-parser-viewer/generic-parser-viewer";
 import { Input } from 'antd';
@@ -108,27 +108,61 @@ export default function LeftMostDerivation() {
 
   return (
     <div>
-      <Flex justify="space-around" style={{ marginBottom: 16 }}>
-        <Card className="min-w-[300px]" title="最左推导与分析树" >
-          <p>为描述文法定义的语言,需要使用推导的概念.推导的意思是,把产生式看成重写规则,把符号串中的非终结符用其产生式右部的串来代替.若符号串α中有两个以上的非终结符号,则对推导的每一步坚持把α中的最左非终结符号进行替换,称为最左推导.</p>
-          <p>分析树是推导的图形表示.分析树上的每个分支结点都由非终结符标记,它的子结点由该非终结符本次推导所用产生式的右部的各符号从左到右依次来标记.分析树的叶结点由非终结符或终结符标记,所有这些标记从左到右构成一个句型.</p>
-        </Card>
-        <Card className="min-w-[300px]" title="语法提示" style={{ marginLeft: 16, marginRight: 16 }} >
-          <p>使用该工具需要输入文法定义,开始符号,目标表达式.</p>
-          <p>{"文法定义为形如 A -> B | C D | ... 的格式,注意换行"}</p>
-          <p>开始符号必须为文法定义中的非终止符.</p>
-        </Card>
-        <Card className="min-w-[400px]" title="输入示例" >  
-          <Collapse
-            size="small" style={{ marginTop: 0 }}
-            items={[{ key: '1', label: '第二次作业1', children: <p style={{ whiteSpace: 'pre-wrap' }}>{example_1}</p> }]}
-          />
-          <Collapse
-            size="small" style={{ marginTop: 8 }}
-            items={[{ key: '1', label: '第二次作业2', children: <p style={{ whiteSpace: 'pre-wrap' }}>{example_2}</p> }]}
-          />
-        </Card>
-      </Flex>
+      <Row
+        gutter={[16, 16]}
+        justify="space-around"
+        style={{ marginBottom: 16, alignItems: 'stretch' }}
+      >
+        <Col xs={24} sm={24} md={7} lg={7} style={{ display: 'flex' }}>
+          <Card
+            title="最左推导与分析树"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+          >
+            <div>
+              <p>为描述文法定义的语言,需要使用推导的概念.推导的意思是,把产生式看成重写规则,把符号串中的非终结符用其产生式右部的串来代替.若符号串α中有两个以上的非终结符号,则对推导的每一步坚持把α中的最左非终结符号进行替换,称为最左推导.</p>
+              <p>分析树是推导的图形表示.分析树上的每个分支结点都由非终结符标记,它的子结点由该非终结符本次推导所用产生式的右部的各符号从左到右依次来标记.分析树的叶结点由非终结符或终结符标记,所有这些标记从左到右构成一个句型.</p>
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={24} md={7} lg={7} style={{ display: 'flex' }}>
+          <Card
+            title="语法提示"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+          >
+            <div>
+              <p>使用该工具需要输入文法定义,开始符号,目标表达式.</p>
+              <p>{"文法定义为形如 A -> B | C D | ... 的格式,注意换行"}</p>
+              <p>开始符号必须为文法定义中的非终止符.</p>
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={24} md={10} lg={10} style={{ display: 'flex' }}>
+          <Card
+            title="输入示例"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+          >
+            <Collapse
+              size="small"
+              items={[{
+                key: '1',
+                label: '第二次作业1',
+                children: <pre style={{ whiteSpace: 'pre-wrap' }}>{example_1}</pre>
+              }]}
+            />
+            <Collapse
+              size="small"
+              style={{ marginTop: 8 }}
+              items={[{
+                key: '2',
+                label: '第二次作业2',
+                children: <pre style={{ whiteSpace: 'pre-wrap' }}>{example_2}</pre>
+              }]}
+            />
+          </Card>
+        </Col>
+      </Row>
       <TextArea size="large" rows={10} placeholder="请在这里输入文法定义" onChange={onGrammerChange} style={{ marginBottom: 16 }} />
       <Input size="large" placeholder="请在这里输入开始符号" onChange={onStartSymbolChange} style={{ marginBottom: 16 }} />
       <Search

@@ -95,7 +95,7 @@ export default function GlobalNav() {
   return (
     <Menu
       mode="inline"
-      style={{ width: 256 }}
+      theme="dark"
       items={items}
       openKeys={openKeys}
       selectedKeys={selectedKeys}
