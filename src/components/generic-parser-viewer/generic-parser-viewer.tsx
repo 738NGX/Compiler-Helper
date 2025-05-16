@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import mermaid from 'mermaid';
 import { Card } from 'antd';
-import { usePrefersColorScheme } from '../../hooks/usePrefersColorScheme';
+import { ThemeContext } from '../../App';
 
 // Grammar type: nonterminal -> array of productions (each production is array of symbols, 'ε' denotes empty)
 export interface Grammar {
@@ -173,7 +173,7 @@ export default function GenericParserViewer({ expr, grammar, startSymbol }: { ex
   const [diagram, setDiagram] = useState('');
   const [svg, setSvg] = useState('');
   const [error, setError] = useState<Error | null>(null);
-  const scheme = usePrefersColorScheme() === 'dark' ? 'dark' : 'default';
+  const { dark: isDark } = useContext(ThemeContext);
 
   useEffect(() => {
     try {
@@ -207,13 +207,13 @@ export default function GenericParserViewer({ expr, grammar, startSymbol }: { ex
 
   useEffect(() => {
     if (error) return;
-    mermaid.initialize({ startOnLoad: false, theme: scheme });
+    mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' });
     if (!diagram) return;
     const id = `g${Math.random().toString(36).slice(2)}`;
     mermaid.render(id, diagram)
       .then(({ svg }) => setSvg(svg))
       .catch(err => setError(err));
-  }, [diagram, scheme, error]);
+  }, [diagram, isDark, error]);
 
   if (error) {
     return (

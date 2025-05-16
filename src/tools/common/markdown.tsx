@@ -4,7 +4,6 @@ import { Row, Col, Anchor } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
-import 'github-markdown-css'
 
 export interface MarkDownComponentProps {
   content: string;
@@ -40,8 +39,8 @@ export default function MarkDownComponent({ content }: MarkDownComponentProps) {
   return (
     <Row>
       <Col span={16}>
-        <div className="markdown-body" style={{margin: '0 20px'}}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>            
+        <div className="markdown-body" style={{ margin: '0 20px' }}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
             {content}
           </ReactMarkdown>
         </div>

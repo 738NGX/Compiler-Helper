@@ -2,6 +2,9 @@ import './App.css'
 import { Outlet } from 'react-router'
 import { ConfigProvider, theme, Layout } from 'antd'
 import GlobalNav from './components/global-nav/global-nav'
+import { useEffect, useState } from 'react';
+import { usePrefersColorScheme } from './hooks/usePrefersColorScheme';
+import { createContext } from 'react';
 const { Content, Footer } = Layout;
 
 const siderStyle: React.CSSProperties = {
@@ -15,10 +18,25 @@ const siderStyle: React.CSSProperties = {
   scrollbarGutter: 'stable',
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
+export const ThemeContext = createContext<{
+  dark: boolean
+  setDark: React.Dispatch<React.SetStateAction<boolean>>
+}>({
+  dark: false,
+  setDark: () => { }
+});
+
 function App() {
+  const [dark, setDark] = useState(usePrefersColorScheme()=== 'dark');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark);
+  }, [dark]);
+
   return (
-    <>
-      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+    <ThemeContext.Provider value={{ dark, setDark }}>
+      <ConfigProvider theme={{ algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm }}>
         <Layout hasSider>
           <div className="sidebar" style={siderStyle}>
             <div className="demo-logo-vertical" />
@@ -34,7 +52,7 @@ function App() {
           </Layout>
         </Layout>
       </ConfigProvider>
-    </>
+    </ThemeContext.Provider>
   )
 }
 

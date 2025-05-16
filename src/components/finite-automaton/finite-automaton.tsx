@@ -1,8 +1,8 @@
 // src/components/finite-automaton/finite-automaton.tsx
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import mermaid from 'mermaid';
 import { Card } from 'antd';
-import { usePrefersColorScheme } from '../../hooks/usePrefersColorScheme';
+import { ThemeContext } from '../../App';
 
 export class FiniteAutomaton {
   startState: string;
@@ -64,7 +64,7 @@ export default function FiniteAutomatonComponent({
   style
 }: FiniteAutomatonComponentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const scheme = usePrefersColorScheme()?.toString() === 'dark' ? 'dark' : 'default';
+  const { dark: isDark } = useContext(ThemeContext);
 
   // 我们用 state 去承载最终的 SVG，React 会在第一次就把它刷到页面上
   const [svg, setSvg] = useState<string>('');
@@ -81,7 +81,7 @@ export default function FiniteAutomatonComponent({
     );
 
     let d = '';
-    if (scheme === 'dark') {
+    if (isDark) {
       d += `%%{init: { 'theme': 'dark' }}%%\n`;
     }
     d += 'flowchart LR\n';
@@ -101,10 +101,10 @@ export default function FiniteAutomatonComponent({
       )
     );
     return d;
-  }, [fa, scheme]);
+  }, [fa, isDark]);
 
   useEffect(() => {
-    mermaid.initialize({ startOnLoad: false, theme: scheme });
+    mermaid.initialize({ startOnLoad: false });
     const graphId = `fa-${Math.random().toString(36).slice(2)}`;
     mermaid
       .render(graphId, definition)
@@ -114,7 +114,7 @@ export default function FiniteAutomatonComponent({
       .catch(err => {
         console.error('Mermaid 渲染失败：', err);
       });
-  }, [definition, scheme]);
+  }, [definition, isDark]);
 
   return (
     <div style={{ ...style }}>

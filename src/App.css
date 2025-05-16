@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -22,6 +24,35 @@ body {
   @apply bg-gray-50 dark:bg-[#0d1117] text-gray-900 dark:text-gray-100 overflow-auto;
 }
 
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.67em 0;
+}
+
+h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.83em 0;
+}
+
+h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  margin: 1em 0;
+}
+
+h4 {
+  font-size: 1em;
+  font-weight: bold;
+  margin: 1.33em 0;
+}
+
+p {
+  font-size: 1em;
+  margin: 1em 0;
+}
+
 p {
   font-size: 1em;
   margin: 0.5em 0;
@@ -37,8 +68,10 @@ p {
 
 ul {
   list-style-type:disc;
+  margin-left: 1em;
 }
 
 ol {
   list-style-type:decimal;
+  margin-left: 1em;
 }
