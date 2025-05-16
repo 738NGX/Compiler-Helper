@@ -5,10 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/Compiler-Helper/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Compiler Helper</title>
-    <script type="module" crossorigin src="/Compiler-Helper/assets/index-mvRZ_7rs.js"></script>
-    <link rel="stylesheet" crossorigin href="/Compiler-Helper/assets/index-cgWKVucO.css">
+    <script type="module" crossorigin src="/Compiler-Helper/assets/index-egVmKHAt.js"></script>
+    <link rel="stylesheet" crossorigin href="/Compiler-Helper/assets/index-DsAssErA.css">
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function(){
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect != location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
   </body>
 </html>
