@@ -47,6 +47,7 @@ const items: MenuItemWithPath[] = [
     children: [
       { key: '31', label: <NavLink to="/Compiler-Helper/brief/3">主要知识点</NavLink>, path: '/brief/3' },
       { key: '32', label: <NavLink to="/Compiler-Helper/leftmost-derivation">最左推导与分析树</NavLink>, path: '/leftmost-derivation' },
+      { key: '33', label: <NavLink to="/Compiler-Helper/regex-grammer">正则表达式与上下文无关文法</NavLink>, path: '/regex-grammer' },
     ],
   },
 ];

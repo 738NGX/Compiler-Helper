@@ -4,9 +4,16 @@ import { Row, Col, Anchor } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 export interface MarkDownComponentProps {
   content: string;
+  showAnchor?: boolean;
+  style?: React.CSSProperties;
+  bodyStyle?: React.CSSProperties;
+  className?: string;
 }
 
 type AnchorItem = {
@@ -15,7 +22,7 @@ type AnchorItem = {
   title: string;
 };
 
-export default function MarkDownComponent({ content }: MarkDownComponentProps) {
+export default function MarkDownComponent({ content, showAnchor = true, style, bodyStyle, className = "" }: MarkDownComponentProps) {
   const [items, setItems] = useState<AnchorItem[]>([]);
 
   useEffect(() => {
@@ -37,17 +44,19 @@ export default function MarkDownComponent({ content }: MarkDownComponentProps) {
   }, [content]);
 
   return (
-    <Row>
-      <Col xs={24} sm={24} md={20} lg={16}>
-        <div className="markdown-body" style={{ margin: '0 20px' }}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
-            {content}
-          </ReactMarkdown>
-        </div>
-      </Col>
-      <Col xs={0} sm={0} md={4} lg={8}>
-        <Anchor items={items} />
-      </Col>
-    </Row>
+    <div style={{ ...style }} className={className}>
+      <Row>
+        <Col xs={24} sm={24} md={showAnchor ? 20 : 24} lg={showAnchor ? 16 : 24}>
+          <div className="markdown-body" style={{ margin: showAnchor ? "0 20px" : 0, ...bodyStyle }}>
+            <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeSlug, rehypeKatex]}>
+              {content}
+            </ReactMarkdown>
+          </div>
+        </Col>
+        <Col xs={0} sm={0} md={showAnchor ? 4 : 0} lg={showAnchor ? 8 : 0}>
+          <Anchor items={items} />
+        </Col>
+      </Row>
+    </div>
   );
 }

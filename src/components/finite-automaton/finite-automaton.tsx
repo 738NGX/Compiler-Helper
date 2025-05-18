@@ -49,7 +49,7 @@ export class FiniteAutomaton {
   }
 }
 
-interface FiniteAutomatonComponentProps {
+export interface FiniteAutomatonComponentProps {
   fa: FiniteAutomaton;
   title?: string;
   style?: React.CSSProperties;
@@ -65,26 +65,32 @@ export default function FiniteAutomatonComponent({
 }: FiniteAutomatonComponentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { dark: isDark } = useContext(ThemeContext);
-
-  // 我们用 state 去承载最终的 SVG，React 会在第一次就把它刷到页面上
   const [svg, setSvg] = useState<string>('');
 
-  // 把 flowchart 定义拼好，每当 fa 或 theme 变了就重新生成
   const definition = useMemo(() => {
-    const states = new Set<string>([
-      fa.startState,
-      ...fa.acceptStates,
-      ...Object.keys(fa.transitions)
-    ]);
-    Object.values(fa.transitions).forEach(m =>
-      Object.values(m).forEach(arr => arr.forEach(s => states.add(s)))
+    // 收集所有状态
+    const states = new Set<string>([fa.startState, ...fa.acceptStates]);
+    Object.keys(fa.transitions).forEach(s => states.add(s));
+    Object.values(fa.transitions).forEach(map =>
+      Object.values(map).forEach(arr => arr.forEach(s => states.add(s)))
     );
 
-    let d = '';
-    if (isDark) {
-      d += `%%{init: { 'theme': 'dark' }}%%\n`;
-    }
+    // 合并相同 from->to 的符号
+    const edges: Record<string, string[]> = {};
+    Object.entries(fa.transitions).forEach(([from, map]) => {
+      Object.entries(map).forEach(([sym, tos]) => {
+        tos.forEach(to => {
+          const key = `${from}->${to}`;
+          if (!edges[key]) edges[key] = [];
+          edges[key].push(sym);
+        });
+      });
+    });
+
+    let d = isDark ? `%%{init: { 'theme': 'dark' }}%%\n` : '';
     d += 'flowchart LR\n';
+
+    // 节点定义
     states.forEach(s => {
       if (fa.acceptStates.includes(s)) {
         d += `  ${s}((( ${s} )))\n`;
@@ -92,47 +98,44 @@ export default function FiniteAutomatonComponent({
         d += `  ${s}(( ${s} ))\n`;
       }
     });
+
+    // 起始箭头
     d += `  start[[start]] --> ${fa.startState}\n`;
-    Object.entries(fa.transitions).forEach(([from, map]) =>
-      Object.entries(map).forEach(([sym, tos]) =>
-        tos.forEach(to => {
-          d += `  ${from} -->|${sym}| ${to}\n`;
-        })
-      )
-    );
+
+    // 边定义，带逗号分隔的标签
+    Object.entries(edges).forEach(([key, syms]) => {
+      const [from, to] = key.split('->');
+      d += `  ${from} -->|${syms.join(',')}| ${to}\n`;
+    });
+
     return d;
   }, [fa, isDark]);
 
   useEffect(() => {
-    mermaid.initialize({ startOnLoad: false });
     const graphId = `fa-${Math.random().toString(36).slice(2)}`;
     mermaid
       .render(graphId, definition)
-      .then(({ svg: newSvg }) => {
-        setSvg(newSvg);
-      })
-      .catch(err => {
-        console.error('Mermaid 渲染失败：', err);
-      });
+      .then(({ svg: newSvg }) => setSvg(newSvg))
+      .catch(err => console.error('Mermaid 渲染失败：', err));
   }, [definition, isDark]);
 
   return (
     <div style={{ ...style }}>
-      {
-        title
-          ? <Card className="min-w-[300px]" title={title}>
-            <div
-              ref={containerRef}
-              className="fa-diagram"
-              dangerouslySetInnerHTML={{ __html: svg }}
-            />
-          </Card>
-          : <div
+      {title ? (
+        <Card className="min-w-[300px]" title={title}>
+          <div
             ref={containerRef}
             className="fa-diagram"
             dangerouslySetInnerHTML={{ __html: svg }}
           />
-      }
+        </Card>
+      ) : (
+        <div
+          ref={containerRef}
+          className="fa-diagram"
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      )}
     </div>
   );
 }

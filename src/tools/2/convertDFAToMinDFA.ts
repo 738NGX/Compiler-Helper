@@ -8,37 +8,60 @@ interface Dfa2MinDfaState {
 }
 
 function getMinDfaResult(dfa: FiniteAutomaton) {
-  const symbols = Object.keys(dfa.transitions[Object.keys(dfa.transitions)[0]]);
-  const acceptStates = dfa.acceptStates;
-  // 初始化状态划分：终态和非终态
-  const allStates = Object.keys(dfa.transitions);
-  const partitions: Set<string>[] = [
+  const dfaCopy = JSON.parse(JSON.stringify(dfa)) as FiniteAutomaton;
+  const symbols = Array.from(new Set(
+    Object.values(dfaCopy.transitions).flatMap(tx => Object.keys(tx))
+  ));
+  const acceptStates = dfaCopy.acceptStates;
+  const allStates = Object.keys(dfaCopy.transitions);
+
+  // —— 0. 填补“死胡同”态 —— 
+  const trap = '__trap';
+  // 如果还没加过，就新建一个空 transitions
+  if (!dfaCopy.transitions[trap]) {
+    dfaCopy.transitions[trap] = {};
+    // trap 对所有符号都自环
+    symbols.forEach(sym => {
+      dfaCopy.transitions[trap][sym] = [trap];
+    });
+  }
+  // 确保每个原有状态的每个符号都有目标，否则指向 trap
+  allStates.forEach(s => {
+    symbols.forEach(sym => {
+      if (!dfaCopy.transitions[s][sym] || dfaCopy.transitions[s][sym].length === 0) {
+        dfaCopy.transitions[s][sym] = [trap];
+      }
+    });
+  });
+  // 更新全状态列表
+  const statesWithTrap = [...new Set([...allStates, trap])];
+
+  // —— 1. 初始化分区：接受 vs 非接受 —— 
+  const acceptSet = new Set(acceptStates);
+  const nonAccept = statesWithTrap.filter(s => !acceptSet.has(s));
+  let partitions: Set<string>[] = [
     new Set(acceptStates),
-    new Set(allStates.filter(s => !acceptStates.includes(s)))
+    new Set(nonAccept)
   ];
 
-  // 不断细化划分
+  // —— 2. 细化分区 —— 
   let changed = true;
   while (changed) {
     changed = false;
     for (let i = 0; i < partitions.length; i++) {
       const group = partitions[i];
       const splitter: Record<string, Set<string>> = {};
-      // 用转移 signature 做分割
       for (const state of group) {
         const sig = symbols
           .map(sym => {
-            const tgt = dfa.transitions[state][sym][0];
-            // 找到目标状态所属的分区编号
+            const tgt = dfaCopy.transitions[state][sym][0];
             return partitions.findIndex(p => p.has(tgt));
           })
           .join(',');
-        splitter[sig] = splitter[sig] || new Set();
-        splitter[sig].add(state);
+        (splitter[sig] ||= new Set()).add(state);
       }
       const pieces = Object.values(splitter);
       if (pieces.length > 1) {
-        // 替换当前分区
         partitions.splice(i, 1, ...pieces);
         changed = true;
         break;
@@ -46,16 +69,22 @@ function getMinDfaResult(dfa: FiniteAutomaton) {
     }
   }
 
-  // 构造最小化结果
+  // —— 3. 去掉空组 & trap 自身组（既非 C，也无意义展示） —— 
+  partitions = partitions
+    .filter(p => p.size > 0 && !(p.size === 1 && p.has(trap)));
+
+  // —— 4. 构造结果 —— 
   const dfaResult: Dfa2MinDfaState[] = partitions.map(group => {
     const states = Array.from(group);
-    const repr = Array.from(group).join(',');
-    const isAcceptGroup = states.some(s => acceptStates.includes(s));
+    const repr = (partitions.indexOf(group) + 1).toString();  // 用 1,2,… 做名字
+    const isAcceptGroup = states.some(s => acceptSet.has(s));
     const trans: Record<string, string> = {};
     symbols.forEach(sym => {
-      const tgt = dfa.transitions[states[0]][sym][0];
-      const tgtGroup = partitions.find(p => p.has(tgt));
-      if (tgtGroup) trans[sym] = Array.from(tgtGroup).join(',');
+      const tgt = dfaCopy.transitions[states[0]][sym][0];
+      const tgtGroupIdx = partitions.findIndex(p => p.has(tgt));
+      if (tgtGroupIdx >= 0) {
+        trans[sym] = (tgtGroupIdx + 1).toString();
+      }
     });
     return {
       dfaState: states,

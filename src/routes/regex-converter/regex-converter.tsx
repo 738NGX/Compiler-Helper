@@ -9,7 +9,7 @@ import { convertRegexToNFA } from '../../tools/2/convertRegexToNFA';
 type SearchProps = GetProps<typeof Input.Search>;
 const { Search } = Input;
 
-function RegexResult({ regexInput, style }: { regexInput: string, style?: React.CSSProperties }) {
+export function RegexResult({ regexInput, style }: { regexInput: string, style?: React.CSSProperties }) {
   return (
     <div className="result" style={style}>
       <Card className="min-w-[300px]" title="输入正规式">
@@ -39,7 +39,6 @@ export default function RegexConverter() {
     setDfa2minDfaTransTable({ dataSource: dfaDataSource, columns: dfaColumns });
     const minDfa = convertDFAToMinDFA(dfa);
     setMinDfaResult(minDfa);
-    console.log(minDfa);
   };
 
   return (

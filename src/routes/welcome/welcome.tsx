@@ -23,7 +23,7 @@ export function Welcome() {
           </div>
         </header>
         <div className="max-w-[500px] w-full space-y-6 px-4">
-          <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
+          <nav className="rounded-3xl border border-gray-500 p-6 dark:border-gray-700 space-y-4">
             <h3><b>关于本项目</b></h3>
             <p>1. 本项目主要为编译原理期末复习自用,包含了一些笔记整理和工具的实现.</p>
             <p>2. 本项目使用Vite+React19+AntDesign进行搭建,也作为前端学习自用项目.</p>
